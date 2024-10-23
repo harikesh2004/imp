@@ -1,0 +1,35 @@
+# Function to compute CRC with a given polynomial
+def compute_crc(data, polynomial, crc_length):
+    data = ''.join(format(ord(c), '08b') for c in data)  # Convert data to binary representation
+    data += '0' * crc_length  # Append zeros equal to the length of CRC
+    polynomial = int(polynomial, 2)  # Convert polynomial to integer for bitwise operations
+    data = int(data, 2)  # Convert data to integer
+
+    # Shift polynomial to align with the data's leftmost bit
+    for i in range(len(bin(data)) - crc_length - 2):
+        if data & (1 << (len(bin(data)) - 3 - i)):  # If the leftmost bit is 1
+            data ^= polynomial << (len(bin(data)) - crc_length - 3 - i)
+
+    # The remainder is the CRC value
+    return format(data, 'b')[-crc_length:].zfill(crc_length)
+
+# CRC-12 (polynomial: x^12 + x^11 + x^3 + x^2 + x + 1 => 1100000001111)
+def crc12(data):
+    return compute_crc(data, '1100000001111', 12)
+
+# CRC-16 (polynomial: x^16 + x^15 + x^2 + 1 => 11000000000000101)
+def crc16(data):
+    return compute_crc(data, '11000000000000101', 16)
+
+# CRC-CCITT (polynomial: x^16 + x^12 + x^5 + 1 => 10001000000100001)
+def crc_ccitt(data):
+    return compute_crc(data, '10001000000100001', 16)
+
+# Test the implementation
+if __name__ == "__main__":
+    data_set = "Hello CRC!"  # Example dataset of characters
+
+    print("Data:", data_set)
+    print("CRC-12:", crc12(data_set))
+    print("CRC-16:", crc16(data_set))
+    print("CRC-CCITT:", crc_ccitt(data_set))
